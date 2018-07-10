@@ -1,0 +1,23 @@
+{
+  "name": "chatting-app",
+  "version": "0.0.1",
+  "description": "Audio, video, text chat demo with login page",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/urvashimehra/chatwithlogin.git"
+  },
+  "author": "urvashimehra",
+  "license": "MIT",
+  "bugs": {
+    "url": "https://github.com/urvashimehra/chatwithlogin/issues"
+  },
+  "homepage": "https://github.com/urvashimehra/chatwithlogin#readme",
+  "dependencies": {
+    "redis": "^2.8.0",
+    "ws": "^5.2.1"
+  }
+}
