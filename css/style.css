@@ -41,6 +41,9 @@
   transition: all 0.3 ease;
   cursor: pointer;
 }
+.form button:disabled {
+  cursor: default;
+}
 /*
 .form button:hover,.form button:active,.form button:focus {
   background: #43A047;
@@ -58,7 +61,7 @@
   color: #4CAF50;
   text-decoration: none;
 }
-.form .register-form, #callAccept {
+.form .register-form, #callAccept, #audioPlay, #videoPlay, #audioRemoveBtn, #videoRemoveBtn {
   display: none;
 }
 .container {
@@ -110,6 +113,7 @@ body {
 video { 
   background: black; 
   border: 1px solid gray; 
+  margin-top: 15px;
 }
 
 .call-page { 
