@@ -7,7 +7,7 @@
  //using Google public stun server 
  var configuration = {
     "iceServers": [{
-        "url": "stun:stun2.1.google.com:19302"
+        "urls": "stun:stun2.1.google.com:19302"
     }]
 };
 
@@ -160,20 +160,20 @@
          document.querySelector('#callReq').style.display = "none";
          callPage.style.display = "block";
      }, function(error) {
-         alert("Error when creating an answer");
+         alert("Error when creating an answer"+error);console.log(error);         
      });
     } else{
         var sdpConstraints = { 
             'mandatory': {
-            'OfferToReceiveAudio': false,
-            'OfferToReceiveVideo': false
+            'OfferToReceiveAudio': true,
+            'OfferToReceiveVideo': true
         }
         };
-     yourConn.createAnswer(sdpConstraints).then(function (sdp) {
-        return yourConn.setLocalDescription(sdp).then(function() {
+     yourConn.createAnswer(sdpConstraints).then(function (answer) {
+        return yourConn.setLocalDescription(answer).then(function() {
             send({
                 type: "answer",
-                answer: sdp,
+                answer: answer,
                 mediatype: mediatype
             });
             console.log("------ SEND ANSWER ------");
@@ -184,7 +184,7 @@
          callPage.style.display = "block";         
         })
     }, function(error) {
-        alert("Error when creating an answer");
+        alert("Error when creating an answer"+error);console.log(error); 
     });
 }
  });
@@ -201,7 +201,7 @@
  sendMsgBtn.addEventListener("click", function(event) {
      var val = msgInput.value;
      //sending a message to a connected peer      
-     appendDIV(val, name);
+     appendDIV(val, 'Me');//
      sendChannel.send(val);
      msgInput.value = "";
      msgInput.focus();
@@ -274,14 +274,19 @@
      ansBtn.disabled = false;
      ansBtn.style.display = "block";
      callAccept.style.display = "block";
-     yourConn.setRemoteDescription(new RTCSessionDescription(offer));
-     if (mediatype == 'video') {
-         document.querySelector('#callAccept p.message').textContent = connectedUser + ' is sending video call request...';
-         //connectPeers();
-         connectMedia(mediatype);
-     } else {
-         document.querySelector('#callAccept p.message').textContent = connectedUser + ' is calling...';
-     }     
+     //yourConn.setRemoteDescription(new RTCSessionDescription(offer));
+     //yourConn.setRemoteDescription(new RTCSessionDescription(offer)).catch(e => {
+     //   console.log(e);
+    //});
+    yourConn.setRemoteDescription(new RTCSessionDescription(offer)).then(function () {
+        if (mediatype == 'video') {
+            document.querySelector('#callAccept p.message').textContent = connectedUser + ' is sending video call request...';
+            //connectPeers();
+            connectMedia(mediatype);
+        } else {
+            document.querySelector('#callAccept p.message').textContent = connectedUser + ' is calling...';
+        }  
+      });        
  };
 
 
@@ -442,11 +447,11 @@
     });*/
     connectMedia(mediatype);
     var sdpConstraints = { offerToReceiveAudio: true,  offerToReceiveVideo: true }
-            yourConn.createOffer(sdpConstraints).then(function (sdp) {
-                yourConn.setLocalDescription(sdp);
+            yourConn.createOffer(sdpConstraints).then(function (offer) {
+                yourConn.setLocalDescription(offer);
                 send({
                     type: "offer",//video-offer
-                    offer: sdp,
+                    offer: offer,
                     mediatype: mediatype
                 });
                 document.querySelector('#callAccept p.message').textContent = 'video Calling to ' + connectedUser;
@@ -461,33 +466,32 @@
 function connectMedia(mediatype) {    
     if (hasUserMedia()) {       
         navigator.getUserMedia = navigator.getUserMedia || navigator.webkitGetUserMedia ||
-            navigator.mozGetUserMedia;
+            navigator.mozGetUserMedia || navigator.mediaDevices.getUserMedia;
         //getting local video stream 
-     navigator.webkitGetUserMedia({ video: true, audio: true }, function (myStream) { 
+     navigator.getUserMedia({ video: true, audio: true }, function (myStream) { 
        stream = myStream; 
        document.querySelector('#videoPlay').style.display = "block";  
        //displaying local video stream on the page 
        localVideo.src = window.URL.createObjectURL(stream); 
           
-       yourConn = new webkitRTCPeerConnection(configuration); 
+       yourConn = new RTCPeerConnection(configuration);     //new webkitRTCPeerConnection(configuration); 
           
        // setup stream listening 
        yourConn.addStream(stream); 
           
        //when a remote user adds stream to the peer connection, we display it 
-       yourConn.onaddstream = function (e) { 
+       yourConn.ontrack = function (e) { 
+        alert('ontrac');
+     remoteVideo.src = window.URL.createObjectURL(e.stream); 
+     videoCallBtn.style.display = "none";
+           videoRemoveBtn.style.display = "block";
+  };
+  yourConn.onaddstream = function (e) { 
         alert('onaddstream');
           remoteVideo.src = window.URL.createObjectURL(e.stream); 
           videoCallBtn.style.display = "none";
                 videoRemoveBtn.style.display = "block";
        }; 
-       yourConn.ontrack = function (e) { 
-           alert('ontrac');
-        remoteVideo.src = window.URL.createObjectURL(e.stream); 
-        videoCallBtn.style.display = "none";
-              videoRemoveBtn.style.display = "block";
-     }; 
-          
     }, function (error) { 
        console.log(error); 
     }); 
