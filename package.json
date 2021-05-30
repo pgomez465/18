@@ -18,6 +18,6 @@
   "homepage": "https://github.com/urvashimehra/chatwithlogin#readme",
   "dependencies": {
     "redis": "^2.8.0",
-    "ws": "^5.2.1"
+    "ws": "^7.4.6"
   }
 }
